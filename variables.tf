@@ -15,6 +15,18 @@ variable "github_oauth_token" {
   description = "GitHub Oauth Token"
 }
 
+variable "github_webhooks_token" {
+  type        = string
+  default     = ""
+  description = "GitHub OAuth Token with permissions to create webhooks. If not provided, can be sourced from the `GITHUB_TOKEN` environment variable"
+}
+
+variable "github_webhook_events" {
+  type        = list(string)
+  description = "A list of events which should trigger the webhook. See a list of [available events](https://developer.github.com/v3/activity/events/types/)"
+  default     = ["push"]
+}
+
 variable "repo_owner" {
   type        = string
   description = "GitHub Organization or Person name"
@@ -28,6 +40,36 @@ variable "repo_name" {
 variable "branch" {
   type        = string
   description = "Branch of the GitHub repository, _e.g._ `master`"
+}
+
+variable "webhook_enabled" {
+  type        = bool
+  description = "Set to false to prevent the module from creating any webhook resources"
+  default     = false
+}
+
+variable "webhook_target_action" {
+  type        = string
+  description = "The name of the action in a pipeline you want to connect to the webhook. The action must be from the source (first) stage of the pipeline"
+  default     = "Source"
+}
+
+variable "webhook_authentication" {
+  type        = string
+  description = "The type of authentication to use. One of IP, GITHUB_HMAC, or UNAUTHENTICATED"
+  default     = "GITHUB_HMAC"
+}
+
+variable "webhook_filter_json_path" {
+  type        = string
+  description = "The JSON path to filter on"
+  default     = "$.ref"
+}
+
+variable "webhook_filter_match_equals" {
+  type        = string
+  description = "The value to match on (e.g. refs/heads/{Branch})"
+  default     = "refs/heads/{Branch}"
 }
 
 variable "build_image" {
@@ -116,4 +158,34 @@ variable "cache_type" {
   type        = string
   default     = "S3"
   description = "The type of storage that will be used for the AWS CodeBuild project cache. Valid values: NO_CACHE, LOCAL, and S3.  Defaults to S3 to keep same behavior as before upgrading `codebuild` module to 0.18+ version.  If cache_type is S3, it will create an S3 bucket for storing codebuild cache inside"
+}
+
+variable "access_log_bucket_name" {
+  type        = string
+  default     = ""
+  description = "Name of the S3 bucket where s3 access log will be sent to"
+}
+
+variable "s3_bucket_encryption_enabled" {
+  type        = bool
+  default     = true
+  description = "When set to 'true' the 'aws_s3_bucket' resource will have AES256 encryption enabled by default"
+}
+
+variable "versioning_enabled" {
+  type        = bool
+  default     = true
+  description = "A state of versioning. Versioning is a means of keeping multiple variants of an object in the same bucket"
+}
+
+variable "website_bucket_name" {
+  type        = string
+  default     = ""
+  description = "Name of the S3 bucket where the website will be deployed"
+}
+
+variable "website_bucket_acl" {
+  type        = string
+  default     = "public-read"
+  description = "Canned ACL of the S3 bucket objects that get served as a website, can be private if using CloudFront with OAI"
 }
